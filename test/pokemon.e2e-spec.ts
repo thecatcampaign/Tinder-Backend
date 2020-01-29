@@ -1,66 +1,35 @@
-import { PokemonModule } from './../src/pokemon/pokemon.module';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
-import { GraphQLModule } from '@nestjs/graphql';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from './../src/app.module';
 
-describe('ItemsController (e2e)', () => {
+describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        GraphQLModule.forRoot({
-          installSubscriptionHandlers: true,
-          autoSchemaFile: 'schema.gql',
-        }),
-        TypeOrmModule.forRoot(),
-        PokemonModule,
-      ],
+      imports: [AppModule],
     }).compile();
+
     app = moduleFixture.createNestApplication();
     await app.init();
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
-
-  const pokemon = {
-    name: 'pokemon1',
-    type: 'type_pokemon1',
-    pokedex: 1,
-  };
-
-  const createPokemonQuery = `
+  const login = `
   mutation {
-    createPokemon(data: ${pokemon}) {
-      id,
-      name,
-      type
-    }
+    login(input: { email: "hehe1@gmail.com", password: "hehe"})
   }
   `;
-
-  it('create pokemon ', () => {
+  it('/ (login)', () => { 
     return request(app.getHttpServer())
       .post('/graphql')
       .send({
         operationName: null,
-        query: createPokemonQuery,
+        query: login,
       })
       .expect(({ body }) => {
-        const data = body.data.createPokemon;
-        expect(data.name).toBe(pokemon.name);
-        expect(data.type).toBe(pokemon.type);
-        expect(data.pokedex).toBe(pokemon.pokedex);
+        expect(body.data.login).toBeDefined();
       })
       .expect(200);
   });
-
-  // test('should get pokemons', () => {
-  //   return request(app.getHttpServer())
-  //   .post('graphql').send({operationName: null, query: })
-  // })
 });

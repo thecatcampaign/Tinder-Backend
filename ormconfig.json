@@ -2,6 +2,7 @@
 {
     "type": "sqlite",
     "database": "./database.sqlite",
-    "entities": ["dist/**/*.entity{.ts,.js}"],
+    "entities": ["src/**/*.entity{.ts,.js}"],
+    "keepConnectionAlive": true,
     "synchronize": true
   }

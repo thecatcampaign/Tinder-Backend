@@ -3,23 +3,113 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-type CreatePokemonDto {
-  id: String!
-  name: String!
-  type: String!
-  pokedex: Float!
+type _BaseEntity {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
-input inputPokemon {
-  name: String!
-  type: String!
-  pokedex: Float!
+input AddMessageInput {
+  bodyContent: String!
+  matchId: Int!
+}
+
+"""
+The javascript `Date` as string. Type represents date and time as the ISO Date string.
+"""
+scalar DateTime
+
+input GetUserInput {
+  userId: Int!
+}
+
+type Match {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  firstUserId: Int
+  secondUserId: Int
+  messages: [Message!]
+}
+
+type Message {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  bodyContent: String!
+  senderUserId: Int!
+  match: Match!
 }
 
 type Mutation {
-  createPokemon(data: inputPokemon!): CreatePokemonDto!
+  register(input: RegisterInput!): User!
+  updateUser(input: UpdateUserInput!, id: Int!): User!
+  deleteUser(id: Int!): User!
+  updateRolesToUser(userId: Int!, roleNames: [RoleEnum!]!): User!
+  addMessage(input: AddMessageInput!): Message!
+  disLike(toUserId: Int!): Reaction!
+  like(toUserId: Int!): Reaction!
+  login(input: RegisterInput!): String!
 }
 
 type Query {
-  pokemon: [CreatePokemonDto!]!
+  role(name: RoleEnum!): Role!
+  user(input: GetUserInput!): User!
+  users: [User!]!
+  me: User!
+  likers: [User!]!
+  discover: [User!]!
+  messages(matchId: Int!): [Message!]!
+  matches: [User!]!
+}
+
+type Reaction {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  type: String!
+  fromUserId: Float!
+  toUserId: Float!
+}
+
+input RegisterInput {
+  name: String
+  email: String!
+  password: String!
+}
+
+type Role {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  users: [User!]
+}
+
+enum RoleEnum {
+  ADMIN
+  USER
+  MOD
+  OWNER
+}
+
+type Subscription {
+  matchAdded(userId: Int!): Match!
+}
+
+input UpdateUserInput {
+  email: String
+  password: String
+}
+
+type User {
+  id: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  avatar: String!
+  name: String!
+  email: String!
+  roles: [Role!]
+  flatRoles: [String!]
+  matchId: Int
 }
